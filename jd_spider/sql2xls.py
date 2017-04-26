@@ -8,7 +8,7 @@ import MySQLdb
 conn = MySQLdb.connect('localhost','root','','jingdong',charset='utf8')
 cursor = conn.cursor()
 
-count = cursor.execute('select ID,comment_num,commentVersion from jd_goods')
+count = cursor.execute('select product_id,comment_count,comment_version from jd_products')
 # 重置游标的位置
 cursor.scroll(0,mode='absolute')
 # 搜取所有结果
@@ -31,7 +31,7 @@ for row in range(0,len(results)):
     	# print str(row) + ' ' + str(col) + ' ' + str(results[row][col])
         sheet.write(row,col,u'%s'%results[row][col])
 
-workbook.save(r'../goods.xls')
+workbook.save(r'./goods.xls')
 cursor.close()
 conn.close()
 print "Convert Succeed!"

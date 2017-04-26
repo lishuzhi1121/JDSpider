@@ -34,6 +34,7 @@ class MySQLPipeline(object):
                                             cursorclass=MySQLdb.cursors.DictCursor
                                             )
         self.stats = stats
+        self.dbpool.runInteraction(self._create_table)
         dispatcher.connect(self.spider_closed, signals.spider_closed)
 
     def spider_closed(self, spider):
@@ -47,14 +48,24 @@ class MySQLPipeline(object):
         query.addErrback(self._handle_error)
         return item
 
+    def _create_table(self, tx):
+        drop_sql = "DROP TABLE IF EXISTS jd_products"
+        tx.execute(drop_sql)
+
+        creat_sql = "CREATE TABLE jd_products (product_id BIGINT DEFAULT NULL, product_name VARCHAR(128) DEFAULT NULL, shop_name VARCHAR(128) DEFAULT NULL, product_price DOUBLE DEFAULT NULL, product_link VARCHAR(128) DEFAULT NULL, comment_count INT DEFAULT NULL, comment_version INT DEFAULT NULL, score1count INT DEFAULT 0, score2count INT DEFAULT 0, score3count INT DEFAULT 0, score4count INT DEFAULT 0, score5count INT DEFAULT 0)"
+        tx.execute(creat_sql)
+        print "Create table jd_products success."
+
     def _insert_record(self, tx, item):
-        ID = item['ID'][0]
-        name = item['name'][0]
-        comment_num = str(item['comment_num'])
+        product_id = item['product_id'][0]
+        product_name = item['product_name'][0]
         shop_name = item['shop_name'][0]
-        link = item['link'][0]
-        commentVersion = str(item['commentVersion'])
-        commentVersion = commentVersion[1:-1]
+        product_price = str(item['product_price'])
+        product_link = item['product_link'][0]
+        comment_count = str(item['comment_count'])
+
+        comment_version = str(item['comment_version'])
+        comment_version = comment_version[1:-1]
 
         score1count = str(item['score1count'])
         score2count = str(item['score2count'])
@@ -62,26 +73,25 @@ class MySQLPipeline(object):
         score4count = str(item['score4count'])
         score5count = str(item['score5count'])
 
-        price = str(item['price'])
-
-        ID = ID.encode('utf-8')
-        name = name.encode('utf-8')
-        comment_num = comment_num.encode('utf-8')
+        product_id = product_id.encode('utf-8')
+        product_name = product_name.encode('utf-8')
         shop_name = shop_name.encode('utf-8')
-        link = link.encode('utf-8')
-        commentVersion = commentVersion.encode('utf-8')
+        product_price = product_price.encode('utf-8')
+        product_link = product_link.encode('utf-8')
+        comment_count = comment_count.encode('utf-8')
+        comment_version = comment_version.encode('utf-8')
         score1count = score1count.encode('utf-8')
         score2count = score2count.encode('utf-8')
         score3count = score3count.encode('utf-8')
         score4count = score4count.encode('utf-8')
         score5count = score5count.encode('utf-8')
-        price = price.encode('utf-8')
 
-        sql = "INSERT INTO jd_goods VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % \
-              (ID, name, comment_num, shop_name, link, commentVersion, score1count, score2count, score3count,
-               score4count, score5count, price)
-        tx.execute(sql)
-        print "yes" + str(ID)
+        insert_sql = "INSERT INTO jd_products VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % \
+              (product_id, product_name, shop_name, product_price, product_link, comment_count, comment_version, score1count, score2count, score3count,
+               score4count, score5count)
+
+        tx.execute(insert_sql)
+        print "OK -> " + str(product_id)
 
     def _handle_error(self, e):
         log.err(e)
@@ -105,6 +115,7 @@ class CommentPipeline(object):
                                             cursorclass=MySQLdb.cursors.DictCursor
                                             )
         self.stats = stats
+        self.dbpool.runInteraction(self._create_table)
         dispatcher.connect(self.spider_closed, signals.spider_closed)
 
     def spider_closed(self, spider):
@@ -118,34 +129,43 @@ class CommentPipeline(object):
         query.addErrback(self._handle_error)
         return item
 
+    def _create_table(self, tx):
+        drop_sql = "DROP TABLE IF EXISTS jd_comments"
+        tx.execute(drop_sql)
+
+        creat_sql = "CREATE TABLE jd_comments (user_id BIGINT DEFAULT NULL, user_name VARCHAR(128) DEFAULT NULL, user_province VARCHAR(128) DEFAULT NULL, user_level_id INT DEFAULT NULL, user_level_name VARCHAR(128) DEFAULT NULL, product_id BIGINT DEFAULT NULL, product_name VARCHAR(128) DEFAULT NULL, comment_content VARCHAR(255) DEFAULT NULL, comment_date DATETIME DEFAULT NULL, reply_count INT DEFAULT 0, score INT DEFAULT 0, status TINYINT DEFAULT NULL, title VARCHAR(128) DEFAULT NULL, product_color VARCHAR(128) DEFAULT NULL, product_size VARCHAR(128) DEFAULT NULL, user_client_show VARCHAR(128) DEFAULT NULL, is_mobile VARCHAR(8) DEFAULT NULL, comment_days INT DEFAULT NULL, comment_tags VARCHAR(255) DEFAULT NULL)"
+        tx.execute(creat_sql)
+        print "Create table jd_comments success."
+
     def _insert_record(self, tx, item):
+        user_id = item['user_id']
         user_name = item['user_name']
-        user_ID = item['user_ID']
-        userProvince = item['userProvince']
-        content = item['content']
-        good_ID = item['good_ID']
-        good_name = item['good_name']
-        date = item['date']
-        replyCount = item['replyCount']
+        user_province = item['user_province']
+        user_level_id = item['user_level_id']
+        user_level_name = item['user_level_name']
+        product_id = item['product_id']
+        product_name = item['product_name']
+        comment_content = item['comment_content']
+        comment_date = item['comment_date']
+        reply_count = item['reply_count']
         score = item['score']
         status = item['status']
         title = item['title']
-        userRegisterTime = item['userRegisterTime']
-        productColor = item['productColor']
-        productSize = item['productSize']
-        userLevelName = item['userLevelName']
-        isMobile = item['isMobile']
-        days = item['days']
-        tags = item['commentTags']
+        product_color = item['product_color']
+        product_size = item['product_size']
+        user_client_show = item['user_client_show']
+        is_mobile = item['is_mobile']
+        comment_days = item['comment_days']
+        comment_tags = item['comment_tags']
 
-        sql = "INSERT INTO jd_comment VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'," \
-              "'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % \
-              (user_name, user_ID, userProvince, content, good_ID, good_name, date, replyCount, score,
-               status, title, userRegisterTime, productColor, productSize, userLevelName,
-               isMobile, days, tags)
+        insert_sql = "INSERT INTO jd_comments VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'," \
+              "'%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % \
+              (user_id, user_name, user_province, user_level_id, user_level_name, product_id, product_name, comment_content,
+               comment_date, reply_count, score, status, title, product_color,
+               product_size, user_client_show, is_mobile, comment_days, comment_tags)
 
-        tx.execute(sql)
-        print "yes" + str(user_ID)
+        tx.execute(insert_sql)
+        print "OK -> " + str(user_id)
 
     def _handle_error(self, e):
         log.err(e)

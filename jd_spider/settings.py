@@ -34,15 +34,15 @@ USER_AGENTS = [
 ]
 
 # 这里使用的代理IP，因为IP的存活期的限制，请定期更新下面的IP，可从http://www.xicidaili.com/ 中找免费的代理IP
-PROXIES = [
-    {'ip_port': '124.88.67.81:80', 'user_pass': ''},
-    {'ip_port': '124.88.67.82.221:80', 'user_pass': ''},
-    {'ip_port': '115.231.175.68:8081', 'user_pass': ''},
-    {'ip_port': '113.200.156.53:9999', 'user_pass': ''},
-    {'ip_port': '123.138.89.130:9999', 'user_pass': ''},
-    {'ip_port': '202.202.90.20:8080', 'user_pass': ''},
-    {'ip_port': '59.78.44.244:8123', 'user_pass': ''},
-]
+# PROXIES = [
+#     {'ip_port': '124.88.67.81:80', 'user_pass': ''},
+#     {'ip_port': '124.88.67.82.221:80', 'user_pass': ''},
+#     {'ip_port': '115.231.175.68:8081', 'user_pass': ''},
+#     {'ip_port': '113.200.156.53:9999', 'user_pass': ''},
+#     {'ip_port': '123.138.89.130:9999', 'user_pass': ''},
+#     {'ip_port': '202.202.90.20:8080', 'user_pass': ''},
+#     {'ip_port': '59.78.44.244:8123', 'user_pass': ''},
+# ]
 
 COOKIES_ENABLED = False
 
@@ -54,7 +54,7 @@ COOKIES_ENABLED = False
 #     'jd_spider.middlewares.ProxyMiddleware': 100,
 # }
 
-DOWNLOAD_DELAY = 1  # 下载延迟
+DOWNLOAD_DELAY = 0.3  # 下载延迟
 
 LOG_LEVEL = 'INFO'
 

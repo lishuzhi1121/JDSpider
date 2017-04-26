@@ -8,7 +8,7 @@ import xlrd
 
 
 class comment_spider(Spider):
-    name = "comment"
+    name = "comments"
     xlrd.Book.encoding = "utf-8"
     data = xlrd.open_workbook("goods.xls")
     # goods为要抓取评论的商品信息，提供一个goods.xls文件供参考,第1列：商品ID；第2列：商品评论数；第3列：商品的commentVersion
@@ -20,7 +20,7 @@ class comment_spider(Spider):
     comment_V = table.col_values(2)  # 商品评论的commentVersion
 
     start_urls = []
-    for i in range(len(good_id)):  # 一件商品一件商品的抽取
+    for i in range(len(good_id)):  # 一件商品一件商品的爬
         good_num = int(good_id[i])
         comment_total = int(comment_n[i])
         if comment_total % 10 == 0:  # 算出评论的页数，一页10条评论
@@ -43,34 +43,36 @@ class comment_spider(Spider):
         items = []
         for comment in comments:
             item1 = commentItem()
+            item1['user_id'] = comment['id']
             item1['user_name'] = comment['nickname']
-            item1['user_ID'] = comment['id']
-            item1['userProvince'] = comment['userProvince']
-            item1['content'] = comment['content']
-            item1['good_ID'] = comment['referenceId']
-            item1['good_name'] = comment['referenceName']
-            item1['date'] = comment['referenceTime']
-            item1['replyCount'] = comment['replyCount']
+            item1['user_province'] = comment['userProvince']
+            item1['user_level_id'] = comment['userLevelId']
+            item1['user_level_name'] = comment['userLevelName']
+            item1['product_id'] = comment['referenceId']
+            item1['product_name'] = comment['referenceName']
+            item1['comment_content'] = comment['content']
+            item1['comment_date'] = comment['referenceTime']
+            item1['reply_count'] = comment['replyCount']
             item1['score'] = comment['score']
             item1['status'] = comment['status']
+
             title = ""
             if comment.has_key('title'):
                 item1['title'] = comment['title']
             item1['title'] = title
-            userRegisterTime = ""
-            if comment.has_key('userRegisterTime'):
-                item1['userRegisterTime'] = comment['userRegisterTime']
-            item1['userRegisterTime'] = userRegisterTime
+            
+            item1['product_color'] = comment['productColor']
+            item1['product_size'] = comment['productSize']
+            item1['user_client_show'] = comment['userClientShow']
+            item1['is_mobile'] = comment['isMobile']
+            item1['comment_days'] = comment['days']
 
-            item1['productColor'] = comment['productColor']
-            item1['productSize'] = comment['productSize']
-            item1['userLevelName'] = comment['userLevelName']
-            item1['isMobile'] = comment['isMobile']
-            item1['days'] = comment['days']
             tags = ""
             if comment.has_key('commentTags'):
                 for i in comment['commentTags']:
                     tags = tags + i['name'] + " "
-            item1['commentTags'] = tags
+            item1['comment_tags'] = tags
+
             items.append(item1)
         return items
+
